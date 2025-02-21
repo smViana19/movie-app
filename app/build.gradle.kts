@@ -10,14 +10,14 @@ plugins {
 android {
   namespace = "com.samuel.movie_dimensa_app"
   compileSdk = 35
-
+  android.buildFeatures.buildConfig = true
   defaultConfig {
     applicationId = "com.samuel.movie_dimensa_app"
     minSdk = 29
     targetSdk = 34
     versionCode = 1
     versionName = "1.0"
-
+    buildConfigField ("String", "API_KEY", "\"${project.findProperty("API_KEY") ?: ""}\"")
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
