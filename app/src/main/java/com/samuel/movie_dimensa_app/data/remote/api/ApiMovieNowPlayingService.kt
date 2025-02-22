@@ -7,6 +7,6 @@ import retrofit2.http.Path
 
 interface ApiMovieNowPlayingService {
   @GET("movie/now_playing")
-  suspend fun getMoviesNowPlaying(@Path("language") language: String = ENGLISH): ApiMovieNowPlayingResponse
+  suspend fun getMoviesNowPlaying(): ApiMovieNowPlayingResponse
 
 }
