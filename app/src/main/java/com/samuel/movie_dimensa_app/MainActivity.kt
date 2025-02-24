@@ -3,28 +3,32 @@ package com.samuel.movie_dimensa_app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.samuel.movie_dimensa_app.ui.screens.MovieDetailsScreen
-import com.samuel.movie_dimensa_app.ui.screens.MoviesScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.samuel.movie_dimensa_app.ui.navigation.MainNavigation
 import com.samuel.movie_dimensa_app.ui.theme.MoviedimensaappTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
+    val splashScreen = installSplashScreen()
+    var keepSplashScreenVisible = true
+    splashScreen.setKeepOnScreenCondition {
+      keepSplashScreenVisible
+    }
+
+    runBlocking {
+      delay(2000)
+      keepSplashScreenVisible = false
+    }
     super.onCreate(savedInstanceState)
-    enableEdgeToEdge()
     setContent {
       MoviedimensaappTheme {
-        MovieDetailsScreen()
+        MainNavigation()
       }
     }
   }
 }
+
