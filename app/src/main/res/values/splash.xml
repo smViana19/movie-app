@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SplashScreen.Moviedimensaapp" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#1C1A29</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_app</item>
+        <item name="windowSplashScreenIconBackgroundColor">#FFFFFF</item>
+        <item name="postSplashScreenTheme">@style/Theme.Moviedimensaapp</item>
+    </style>
+</resources>

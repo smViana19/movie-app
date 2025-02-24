@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">movie-dimensa-app</string>
+    <string name="app_logo">App logo</string>
+    <string name="on_display">Em exibição</string>
+    <string name="upcoming">Em breve</string>
+    <string name="most_popular">Mais populares</string>
+    <string name="top_rated">Melhores avaliados</string>
+    <string name="movie_poster">Movie poster</string>
 </resources>
