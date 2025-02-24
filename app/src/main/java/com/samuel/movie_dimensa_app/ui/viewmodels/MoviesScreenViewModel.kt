@@ -2,7 +2,6 @@ package com.samuel.movie_dimensa_app.ui.viewmodels
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieNowPlayingService
@@ -34,21 +33,28 @@ class MoviesScreenViewModel @Inject constructor(
   private val _moviesTopRated = mutableStateOf<List<Result>>(emptyList())
   val moviesTopRated: MutableState<List<Result>> = _moviesTopRated
 
-  init {
+  private val _isLoading = mutableStateOf(false)
+  val isLoading : MutableState<Boolean> = _isLoading
+
+
+  fun getAllMovies() {
+    _isLoading.value = true
     getNowPlayingMovies()
     getUpComingMovies()
     getPopularMovies()
     getTopRatedMovies()
   }
-
   fun getNowPlayingMovies() {
     viewModelScope.launch {
       try {
+        _isLoading.value = true
         val response = apiMovieNowPlayingService.getMoviesNowPlaying()
         _moviesNowPlaying.value = response.results
+        println("A: $_moviesNowPlaying")
       } catch (e: Exception) {
-        //TODO: EXCEPTIONS PERSONALIZADAS
         e.printStackTrace()
+      } finally {
+        _isLoading.value = false
       }
     }
 
@@ -57,36 +63,45 @@ class MoviesScreenViewModel @Inject constructor(
   fun getUpComingMovies() {
     try {
       viewModelScope.launch {
+        _isLoading.value = true
         val response = apiMovieUpcomingService.getMoviesUpcoming()
         _moviesUpComing.value = response.results
         println("Upcoming movies: ${_moviesUpComing.value}")
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    } finally {
+      _isLoading.value = false
     }
   }
 
   fun getPopularMovies() {
     try {
       viewModelScope.launch {
+        _isLoading.value = true
         val response = apiMoviePopularService.getMoviesPopular()
         _moviesPopular.value = response.results
         println("popular: ${_moviesPopular.value}")
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    } finally {
+      _isLoading.value = false
     }
   }
 
   fun getTopRatedMovies() {
     try {
       viewModelScope.launch {
+        _isLoading.value = true
         val response = apiMovieTopRatedService.getMoviesTopRated()
         _moviesTopRated.value = response.results
         println("top rated: ${_moviesTopRated.value}")
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    } finally {
+      _isLoading.value = false
     }
   }
 }
