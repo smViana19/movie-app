@@ -9,7 +9,12 @@ data class ApiMovieNowPlayingResponse(
   @SerializedName("total_pages")
   val totalPageSize: Int,
   @SerializedName("total_results")
-  val totalResults: Int
+  val totalResults: Int,
+  @SerializedName("status_code")
+  val statusCode: Int,
+  @SerializedName("status_message")
+  val statusMessage: String,
+  val success: Boolean
 )
 
 data class Dates(
