@@ -42,6 +42,11 @@ git clone https://github.com/smViana19/movie-app.git
 - Connect an Android device or launch an emulator
 - Click ```Run``` (play icon) in Android Studio to compile and run the application
 - Put your api key in the ```Interceptor.Kt```
+
+## Project
+<img src="app/src/main/res/drawable/imagem_tela_principal.jpeg" alt="movies-list-screen" width="300px"></img>
+<img src="app/src/main/res/drawable/image_details.jpeg" alt="movies-list-screen" width="300px"></img>
+
 ## 👨‍💻 Developer 
 ### Samuel Filipe Viana
 -  [LinkedIn](https://www.linkedin.com/in/samuel-viana-aab511266/)
