@@ -41,8 +41,10 @@ import com.samuel.movie_dimensa_app.data.mocks.ApiMoviePlayingNowMock
 import com.samuel.movie_dimensa_app.data.mocks.ApiMoviePopularServiceMock
 import com.samuel.movie_dimensa_app.data.mocks.ApiMovieTopRatedServiceMock
 import com.samuel.movie_dimensa_app.data.mocks.ApiMovieUpcomingServiceMock
+import com.samuel.movie_dimensa_app.ui.components.AppDialog
 import com.samuel.movie_dimensa_app.ui.components.AppLoader
 import com.samuel.movie_dimensa_app.ui.navigation.Screens
+import com.samuel.movie_dimensa_app.ui.state.DialogState
 import com.samuel.movie_dimensa_app.ui.theme.MoviedimensaappTheme
 import com.samuel.movie_dimensa_app.ui.theme.openSansFontFamily
 import com.samuel.movie_dimensa_app.ui.viewmodels.MoviesScreenViewModel
@@ -55,10 +57,7 @@ fun MoviesScreen(
   moviesScreenViewModel: MoviesScreenViewModel = hiltViewModel()
 ) {
   LaunchedEffect(Unit) {
-    moviesScreenViewModel.getNowPlayingMovies()
-    moviesScreenViewModel.getUpComingMovies()
-    moviesScreenViewModel.getPopularMovies()
-    moviesScreenViewModel.getTopRatedMovies()
+    moviesScreenViewModel.getAllMovies()
   }
   BackHandler {
     exitProcess(0)
@@ -115,7 +114,7 @@ fun MoviesScreen(
         }
       }
     }
-    //FIM EXIBICAO
+
     Column(
       modifier = Modifier
         .fillMaxWidth()
@@ -126,7 +125,6 @@ fun MoviesScreen(
           text = stringResource(R.string.upcoming),
           color = Color(0xFFDEDDDF),
           fontSize = 21.sp,
-          //todo adicionar font family open sans
         )
       }
       Spacer(modifier = Modifier.height(10.dp))
@@ -148,7 +146,8 @@ fun MoviesScreen(
         }
       }
     }
-    //FIM EMBREVE
+
+
     Column(
       modifier = Modifier
         .fillMaxWidth()
@@ -159,7 +158,6 @@ fun MoviesScreen(
           text = stringResource(R.string.most_popular),
           color = Color(0xFFDEDDDF),
           fontSize = 21.sp,
-          //todo adicionar font family open sans
         )
       }
       Spacer(modifier = Modifier.height(10.dp))
@@ -181,7 +179,7 @@ fun MoviesScreen(
         }
       }
     }
-    //FIM populares
+
     Column(
       modifier = Modifier
         .fillMaxWidth()
@@ -192,7 +190,6 @@ fun MoviesScreen(
           text = stringResource(R.string.top_rated),
           color = Color(0xFFDEDDDF),
           fontSize = 21.sp,
-          //todo adicionar font family open sans
         )
       }
       Spacer(modifier = Modifier.height(10.dp))
@@ -214,10 +211,17 @@ fun MoviesScreen(
         }
       }
     }
-
-    if(moviesScreenViewModel.isLoading.value) {
-      AppLoader()
-    }
+  }
+  if (moviesScreenViewModel.uiState.value.isLoading) {
+    AppLoader()
+  }
+  if (moviesScreenViewModel.uiState.value.isError && !moviesScreenViewModel.uiState.value.errorMessage.isNullOrBlank()) {
+    AppDialog(
+      state = DialogState(
+        isOpen = true,
+        message = moviesScreenViewModel.uiState.value.errorMessage,
+      )
+    )
   }
 }
 

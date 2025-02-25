@@ -32,10 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,6 +44,7 @@ import com.samuel.movie_dimensa_app.R
 import com.samuel.movie_dimensa_app.data.mocks.ApiMovieDetailsServiceMock
 import com.samuel.movie_dimensa_app.data.mocks.ApiMovieReviewServiceMock
 import com.samuel.movie_dimensa_app.data.mocks.ApiMovieSimilarServiceMock
+import com.samuel.movie_dimensa_app.ui.components.AppLoader
 import com.samuel.movie_dimensa_app.ui.navigation.Screens
 import com.samuel.movie_dimensa_app.ui.theme.MoviedimensaappTheme
 import com.samuel.movie_dimensa_app.ui.theme.openSansFontFamily
@@ -80,7 +79,7 @@ fun MovieDetailsScreen(
         modifier = Modifier
           .fillMaxSize()
           .clip(RoundedCornerShape(bottomStart = 27.dp, bottomEnd = 27.dp)),
-        model = "$BACKDROP_URL${movieDetailsScreenViewModel.movieDetails.value?.backdropPath}",
+        model = "$BACKDROP_URL${movieDetailsScreenViewModel.backdropPath.value}",
         contentDescription = "Movie backdrop",
         contentScale = ContentScale.Crop
       )
@@ -162,9 +161,7 @@ fun MovieDetailsScreen(
                   fontWeight = FontWeight(400),
                   fontSize = 13.sp
                 )
-//
               }
-
             }
             Column(
               modifier = Modifier
@@ -298,6 +295,9 @@ fun MovieDetailsScreen(
         )
       }
     }
+  }
+  if(movieDetailsScreenViewModel.uiState.value.isLoading) {
+    AppLoader()
   }
 }
 
