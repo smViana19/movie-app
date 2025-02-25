@@ -12,8 +12,10 @@ import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieReviewService
 import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieSimilarService
 import com.samuel.movie_dimensa_app.data.remote.model.Result
 import com.samuel.movie_dimensa_app.data.remote.model.ReviewResults
+import com.samuel.movie_dimensa_app.handler.ExceptionMapper
 import com.samuel.movie_dimensa_app.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,66 +55,52 @@ class MovieDetailsScreenViewModel @Inject constructor(
   private val _uiState = mutableStateOf(UiState())
   val uiState: State<UiState> = _uiState
 
-  fun getMovieDetails(movieId: Int) {
-    try {
-      viewModelScope.launch {
+  fun getAllMovieDetails(movieId: Int) {
+    viewModelScope.launch {
+      try {
         _uiState.value = UiState(
           isLoading = true
         )
-        val response = apiMovieDetailsService.getMovieDetails(movieId)
-        _genreName.value = response.genres.joinToString(separator = " • ") { it.name }
-        _originalTitle.value = response.originalTitle
-        _overview.value = response.overview
-        _posterPath.value = response.posterPath
-        _runtime.value = response.runtime
-        _voteAverage.value = response.voteAverage
-        _backdropPath.value = response.backdropPath
-
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    } finally {
-      _uiState.value = UiState(
-        isLoading = false
-      )
-    }
-  }
-
-  fun getMovieReviews(movieId: Int) {
-    try {
-      viewModelScope.launch {
+        val movieDetailsRequest = async { getMovieDetails(movieId) }
+        val movieReviewsRequest = async { getMovieReviews(movieId) }
+        val movieSimilarRequest = async { getMovieSimilar(movieId) }
+        movieDetailsRequest.await()
+        movieReviewsRequest.await()
+        movieSimilarRequest.await()
+      } catch (e: Exception) {
+        val appException = ExceptionMapper.mapException(e)
         _uiState.value = UiState(
-          isLoading = true
+          isLoading = false,
+          isError = true,
+          errorMessage = appException.message
         )
-        val response = apiMovieReviewService.getMovieReviews(movieId)
-        _movieReviews.value = response.results
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    } finally {
-      _uiState.value = UiState(
-        isLoading = false
-      )
-    }
-  }
-
-  fun getMovieSimilar(movieId: Int) {
-    try {
-      viewModelScope.launch {
+        e.printStackTrace()
+      } finally {
         _uiState.value = UiState(
-          isLoading = true
+          isLoading = false
         )
-        val response = apiMovieSimilarService.getMovieSimilar(movieId)
-        _movieSimilar.value = response.results
       }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    } finally {
-      _uiState.value = UiState(
-        isLoading = false
-      )
     }
   }
 
+  private suspend fun getMovieDetails(movieId: Int) {
+    val response = apiMovieDetailsService.getMovieDetails(movieId)
+    _genreName.value = response.genres.joinToString(separator = " • ") { it.name }
+    _originalTitle.value = response.originalTitle
+    _overview.value = response.overview
+    _posterPath.value = response.posterPath
+    _runtime.value = response.runtime
+    _voteAverage.value = response.voteAverage
+    _backdropPath.value = response.backdropPath
+  }
 
+  private suspend fun getMovieReviews(movieId: Int) {
+    val response = apiMovieReviewService.getMovieReviews(movieId)
+    _movieReviews.value = response.results
+  }
+
+  private suspend fun getMovieSimilar(movieId: Int) {
+    val response = apiMovieSimilarService.getMovieSimilar(movieId)
+    _movieSimilar.value = response.results
+  }
 }

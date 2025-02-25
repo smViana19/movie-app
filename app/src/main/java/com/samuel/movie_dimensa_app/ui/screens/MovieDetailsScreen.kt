@@ -60,9 +60,7 @@ fun MovieDetailsScreen(
   movieDetailsScreenViewModel: MovieDetailsScreenViewModel = hiltViewModel()
 ) {
   LaunchedEffect(Unit) {
-    movieDetailsScreenViewModel.getMovieDetails(movieId)
-    movieDetailsScreenViewModel.getMovieReviews(movieId)
-    movieDetailsScreenViewModel.getMovieSimilar(movieId)
+    movieDetailsScreenViewModel.getAllMovieDetails(movieId)
   }
   Column(
     modifier = Modifier
