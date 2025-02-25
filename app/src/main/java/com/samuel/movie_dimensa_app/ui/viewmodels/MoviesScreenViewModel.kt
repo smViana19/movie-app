@@ -1,6 +1,7 @@
 package com.samuel.movie_dimensa_app.ui.viewmodels
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +10,10 @@ import com.samuel.movie_dimensa_app.data.remote.api.ApiMoviePopularService
 import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieTopRatedService
 import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieUpcomingService
 import com.samuel.movie_dimensa_app.data.remote.model.Result
+import com.samuel.movie_dimensa_app.handler.ExceptionMapper
+import com.samuel.movie_dimensa_app.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,74 +38,64 @@ class MoviesScreenViewModel @Inject constructor(
   val moviesTopRated: MutableState<List<Result>> = _moviesTopRated
 
   private val _isLoading = mutableStateOf(false)
-  val isLoading : MutableState<Boolean> = _isLoading
+  val isLoading: MutableState<Boolean> = _isLoading
 
+  private val _uiState = mutableStateOf(UiState())
+  val uiState: State<UiState> = _uiState
 
   fun getAllMovies() {
-    _isLoading.value = true
-    getNowPlayingMovies()
-    getUpComingMovies()
-    getPopularMovies()
-    getTopRatedMovies()
-  }
-  fun getNowPlayingMovies() {
+    _uiState.value = UiState(
+      isLoading = true
+    )
     viewModelScope.launch {
       try {
-        _isLoading.value = true
-        val response = apiMovieNowPlayingService.getMoviesNowPlaying()
-        _moviesNowPlaying.value = response.results
-        println("A: $_moviesNowPlaying")
+        val nowPlayingMoviesRequest = async { getNowPlayingMovies() }
+        val upcomingMoviesRequest = async { getUpComingMovies() }
+        val popularMoviesRequest = async { getPopularMovies() }
+        val topRatedMoviesRequest = async { getTopRatedMovies() }
+
+        nowPlayingMoviesRequest.await()
+        upcomingMoviesRequest.await()
+        popularMoviesRequest.await()
+        topRatedMoviesRequest.await()
       } catch (e: Exception) {
+        val appException = ExceptionMapper.mapException(e)
+        _uiState.value = UiState(
+          isLoading = false,
+          isError = true,
+          errorMessage = appException.message
+        )
         e.printStackTrace()
       } finally {
-        _isLoading.value = false
+        _uiState.value = UiState(
+          isLoading = false,
+        )
       }
-    }
-
-  }
-
-  fun getUpComingMovies() {
-    try {
-      viewModelScope.launch {
-        _isLoading.value = true
-        val response = apiMovieUpcomingService.getMoviesUpcoming()
-        _moviesUpComing.value = response.results
-        println("Upcoming movies: ${_moviesUpComing.value}")
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    } finally {
-      _isLoading.value = false
     }
   }
 
-  fun getPopularMovies() {
-    try {
-      viewModelScope.launch {
-        _isLoading.value = true
-        val response = apiMoviePopularService.getMoviesPopular()
-        _moviesPopular.value = response.results
-        println("popular: ${_moviesPopular.value}")
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    } finally {
-      _isLoading.value = false
+  private suspend fun getNowPlayingMovies() {
+    val response = apiMovieNowPlayingService.getMoviesNowPlaying()
+    _moviesNowPlaying.value = response.results
+    if(!response.success) {
+      _uiState.value = UiState(isError = true, errorMessage = response.statusMessage)
     }
   }
 
-  fun getTopRatedMovies() {
-    try {
-      viewModelScope.launch {
-        _isLoading.value = true
-        val response = apiMovieTopRatedService.getMoviesTopRated()
-        _moviesTopRated.value = response.results
-        println("top rated: ${_moviesTopRated.value}")
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    } finally {
-      _isLoading.value = false
-    }
+  private suspend fun getUpComingMovies() {
+    val response = apiMovieUpcomingService.getMoviesUpcoming()
+    _moviesUpComing.value = response.results
+
   }
+
+  private suspend fun getPopularMovies() {
+    val response = apiMoviePopularService.getMoviesPopular()
+    _moviesPopular.value = response.results
+  }
+
+  private suspend fun getTopRatedMovies() {
+    val response = apiMovieTopRatedService.getMoviesTopRated()
+    _moviesTopRated.value = response.results
+  }
+
 }

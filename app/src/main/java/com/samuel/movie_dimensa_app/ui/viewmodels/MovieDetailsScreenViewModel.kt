@@ -1,6 +1,7 @@
 package com.samuel.movie_dimensa_app.ui.viewmodels
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +12,7 @@ import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieReviewService
 import com.samuel.movie_dimensa_app.data.remote.api.ApiMovieSimilarService
 import com.samuel.movie_dimensa_app.data.remote.model.Result
 import com.samuel.movie_dimensa_app.data.remote.model.ReviewResults
+import com.samuel.movie_dimensa_app.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,10 +50,15 @@ class MovieDetailsScreenViewModel @Inject constructor(
   private val _movieSimilar = mutableStateOf<List<Result>>(emptyList())
   val movieSimilar: MutableState<List<Result>> = _movieSimilar
 
+  private val _uiState = mutableStateOf(UiState())
+  val uiState: State<UiState> = _uiState
 
   fun getMovieDetails(movieId: Int) {
     try {
       viewModelScope.launch {
+        _uiState.value = UiState(
+          isLoading = true
+        )
         val response = apiMovieDetailsService.getMovieDetails(movieId)
         _genreName.value = response.genres.joinToString(separator = " • ") { it.name }
         _originalTitle.value = response.originalTitle
@@ -60,31 +67,50 @@ class MovieDetailsScreenViewModel @Inject constructor(
         _runtime.value = response.runtime
         _voteAverage.value = response.voteAverage
         _backdropPath.value = response.backdropPath
+
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    } finally {
+      _uiState.value = UiState(
+        isLoading = false
+      )
     }
   }
 
   fun getMovieReviews(movieId: Int) {
     try {
       viewModelScope.launch {
+        _uiState.value = UiState(
+          isLoading = true
+        )
         val response = apiMovieReviewService.getMovieReviews(movieId)
         _movieReviews.value = response.results
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    } finally {
+      _uiState.value = UiState(
+        isLoading = false
+      )
     }
   }
 
   fun getMovieSimilar(movieId: Int) {
     try {
       viewModelScope.launch {
+        _uiState.value = UiState(
+          isLoading = true
+        )
         val response = apiMovieSimilarService.getMovieSimilar(movieId)
         _movieSimilar.value = response.results
       }
     } catch (e: Exception) {
       e.printStackTrace()
+    } finally {
+      _uiState.value = UiState(
+        isLoading = false
+      )
     }
   }
 
